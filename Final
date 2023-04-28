@@ -1,5 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
+
+
 
 class HealthyHabitsTracker:
     def __init__(self, master):
@@ -13,10 +16,18 @@ class HealthyHabitsTracker:
         self.activity_minutes = tk.StringVar(value="0")
         self.food_calories = tk.StringVar(value="0")
         self.food_item = tk.StringVar(value="0")
+        self.water_history = []
+        self.sleep_history = []
+        self.activity_history = []
+        self.food_history = []
 
         # Create the notebook widget
         self.notebook = ttk.Notebook(master)
         self.notebook.pack(fill='both', expand=True)
+
+        # Define list attributes
+        self.sleep_list = []
+        self.activity_list = []
         
         # Create tabs for each habit
         self.tabs = ttk.Notebook(self.master)
@@ -45,85 +56,162 @@ class HealthyHabitsTracker:
         self.water_entry = ttk.Entry(self.water_tab, textvariable=self.water_amount)
         self.water_entry.grid(column=1, row=1, padx=10, pady=10)
         ttk.Button(self.water_tab, text="Add", command=self.add_water).grid(column=2, row=1, padx=10, pady=10)
-    
+
+        # Create widgets for tracking water intake
+        label = ttk.Label(self.water_tab, text="List of water consumed today:")
+        label.grid(column=0, row=2, padx=10, pady=10)
+
+        self.water_listbox = tk.Listbox(self.water_tab)
+        self.water_listbox.grid(column=0, row=3, columnspan=3, padx=10, pady=10)
+
+        button = ttk.Button(self.water_tab, text="Clear", command=self.clear_water)
+        button.grid(column=2, row=4, padx=10, pady=10)
+
+        # Create widget for displaying total water intake
+        self.water_total_label = ttk.Label(self.water_tab, text="Total water consumed: 0 oz")
+        self.water_total_label.grid(column=0, row=5, columnspan=3, padx=10, pady=10)
+
     def add_water(self):
         try:
             amount = float(self.water_entry.get())
             self.water_amount.set(str(amount))
+            self.water_history.append(amount)
+            self.water_listbox.insert(tk.END, f"{amount} oz")
+            self.update_water_total()
+            self.water_entry.delete(0, "end")
         except ValueError:
             messagebox.showerror("Error", "Please enter a valid number for water intake.")
 
+    def clear_water(self):
+        self.water_entry.delete(0, tk.END)
+        self.water_entry.insert(0, "0")
+        self.water_listbox.delete(0, tk.END)
+        self.update_water_total()
 
-            
+    def update_water_total(self):
+        total = sum([float(item.split()[0]) for item in self.water_listbox.get(0, tk.END)])
+        self.water_total_label.configure(text=f"Total water consumed: {total} oz")
+
+
+       
     def create_sleep_tab(self):
-       # Create widgets for the sleep tab
+        # Create widgets for the sleep tab
         ttk.Label(self.sleep_tab, text="Sleep Tracker", font=("TkDefaultFont", 16)).pack(side="top", padx=10, pady=10)
-        ttk.Label(self.sleep_tab, text="Enter hours of sleep:").pack(side="top", padx=10, pady=10)
-        self.sleep_entry = ttk.Entry(self.sleep_tab, textvariable=self.sleep_hours)
+        ttk.Label(self.sleep_tab, text="Enter hours slept today:").pack(side="top", padx=10, pady=10)
+        self.sleep_entry = ttk.Entry(self.sleep_tab)
         self.sleep_entry.pack(side="top", padx=10, pady=10)
         ttk.Button(self.sleep_tab, text="Add", command=self.add_sleep).pack(side="top", padx=10, pady=10)
-    
+        ttk.Label(self.sleep_tab, text="Hours slept this week:").pack(side="top", padx=10, pady=10)
+        self.sleep_listbox = tk.Listbox(self.sleep_tab, height=5)
+        self.sleep_listbox.pack(side="top", padx=10, pady=10)
+        ttk.Label(self.sleep_tab, text="Average hours slept for the past week:").pack(side="top", padx=10, pady=10)
+        self.sleep_average_label = ttk.Label(self.sleep_tab, text="")
+        self.sleep_average_label.pack(side="top", padx=10, pady=10)
+        ttk.Button(self.sleep_tab, text="Clear", command=self.clear_sleep_list).pack(side="top", padx=10, pady=10)
+
     def add_sleep(self):
         try:
             hours = float(self.sleep_entry.get())
-            self.sleep_hours.set(str(hours))
+            self.sleep_list.append(hours)
+            self.sleep_listbox.delete(0, tk.END)
+            for h in self.sleep_list:
+                self.sleep_listbox.insert(tk.END, str(h))
+            self.update_sleep_average()
         except ValueError:
-            messagebox.showerror("Error", "Please enter a valid number for sleep hours.") 
-        
-    
+            messagebox.showerror("Error", "Please enter a valid number for sleep hours.")
+
+    def clear_sleep_list(self):
+        self.sleep_list = []
+        self.sleep_listbox.delete(0, tk.END)
+        self.update_sleep_average()        
+
+    def update_sleep_average(self):
+        if len(self.sleep_list) > 0:
+            average = sum(self.sleep_list) / len(self.sleep_list)
+            self.sleep_average_label.config(text=f"{average:.1f} hours")
+        else:
+            self.sleep_average_label.config(text="")
+
+            
+ 
         
     def create_activity_tab(self):
-         # Create widgets for the activity tab
-        ttk.Label(self.activity_tab, text="Physical Activity Tracker", font=("TkDefaultFont", 16)).grid(column=0, row=0, padx=10, pady=10)
-        ttk.Label(self.activity_tab, text="Enter minutes of activity:").grid(column=0, row=1, padx=10, pady=10)
-        self.activity_entry = ttk.Entry(self.activity_tab, textvariable=self.activity_minutes)
-        self.activity_entry.grid(column=1, row=1, padx=10, pady=10)
-        ttk.Button(self.activity_tab, text="Add", command=self.add_activity).grid(column=2, row=1, padx=10, pady=10)
-
+        # Create widgets for the activity tab
+        ttk.Label(self.activity_tab, text="Activity Tracker", font=("TkDefaultFont", 16)).pack(side="top", padx=10, pady=10)
+        ttk.Label(self.activity_tab, text="Enter minutes of activity:").pack(side="top", padx=10, pady=10)
+        self.activity_entry = ttk.Entry(self.activity_tab)
+        self.activity_entry.pack(side="top", padx=10, pady=10)
+        ttk.Button(self.activity_tab, text="Add", command=self.add_activity).pack(side="top", padx=10, pady=10)
+        ttk.Button(self.activity_tab, text="Clear", command=self.clear_activity_list).pack(side="bottom", padx=10, pady=10)
+        ttk.Label(self.activity_tab, text="Minutes of activity for the past week:").pack(side="top", padx=10, pady=10)
+        self.activity_listbox = tk.Listbox(self.activity_tab, height=5)
+        self.activity_listbox.pack(side="top", padx=10, pady=10)
+        ttk.Label(self.activity_tab, text="Average minutes of activity for the past week:").pack(side="top", padx=10, pady=10)
+        self.activity_average_label = ttk.Label(self.activity_tab, text="")
+        self.activity_average_label.pack(side="top", padx=10, pady=10)
 
     def add_activity(self):
         try:
-            activity = self.activity_entry.get()
-            self.activity_listbox.insert("end", activity)
-            self.activity_entry.delete(0, "end")
+            minutes = float(self.activity_entry.get())
+            self.activity_minutes.set(str(minutes))
+            self.activity_list.append(minutes)
+            self.activity_listbox.delete(0, tk.END)
+            for m in self.activity_list:
+                self.activity_listbox.insert(tk.END, str(m))
+            self.update_activity_average()
         except ValueError:
-            messagebox.showerror("Error", "Please enter a valid activity.")
+            messagebox.showerror("Error", "Please enter a valid number for activity minutes.")
 
+    def update_activity_average(self):
+        if len(self.activity_list) > 0:
+            average = sum(self.activity_list) / len(self.activity_list)
+            self.activity_average_label.config(text=f"{average:.1f} minutes")
+        else:
+            self.activity_average_label.config(text="")       
 
-        
-    def create_food_tab(self):
-       # Create widgets for the food tab
-        ttk.Label(self.food_tab, text="Food Tracker", font=("TkDefaultFont", 16)).grid(column=0, row=0, padx=10, pady=10)
-        ttk.Label(self.food_tab, text="Enter a food item:").grid(column=0, row=1, padx=10, pady=10)
-        self.food_entry = ttk.Entry(self.food_tab, textvariable=self.food_item)
-        self.food_entry.grid(column=1, row=1, padx=10, pady=10)
-        ttk.Button(self.food_tab, text="Add", command=self.add_food).grid(column=2, row=1, padx=10, pady=10)
+    def clear_activity_list(self):
+        self.activity_list.clear()
+        self.activity_listbox.delete(0, tk.END)
+        self.update_activity_average()
+
     
-        # Create widgets for tracking food items
-        label = ttk.Label(self.food_tab, text="List of food items consumed today:")
-        label.grid(column=0, row=2, padx=10, pady=10)
 
-        self.food_listbox = tk.Listbox(self.food_tab)
-        self.food_listbox.grid(column=0, row=3, columnspan=3, padx=10, pady=10)
+    def create_food_tab(self):
+        # Create widgets for the food tab
+        ttk.Label(self.food_tab, text="Calorie Tracker", font=("TkDefaultFont", 16)).pack(side="top", padx=10, pady=10)
+        ttk.Label(self.food_tab, text="Enter calories consumed:").pack(side="top", padx=10, pady=10)
+        self.food_entry = ttk.Entry(self.food_tab)
+        self.food_entry.pack(side="top", padx=10, pady=10)
+        self.calories_entry = ttk.Entry(self.food_tab)
+        ttk.Button(self.food_tab, text="Add", command=self.add_food).pack(side="top", padx=10, pady=10)
+        ttk.Label(self.food_tab, text="Calories consumed for the day:").pack(side="top", padx=10, pady=10)
+        self.food_calories = tk.StringVar()
+        self.food_calories_label = ttk.Label(self.food_tab, textvariable=self.food_calories)
+        self.food_calories_label.pack(side="top", padx=10, pady=10)
+        ttk.Button(self.food_tab, text="Clear", command=self.clear_food_list).pack(side="bottom", padx=10, pady=10)
 
-        button = ttk.Button(self.food_tab, text="Clear", command=self.clear_food)
-        button.grid(column=2, row=4, padx=10, pady=10)
 
     def add_food(self):
         try:
-            item = self.food_entry.get()
-            calories = self.food_calories.get()
-
-            self.food_listbox.insert("end", f"{item} - {calories} calories")
-            self.food_entry.delete(0, "end")
-            self.food_calories.set("0")
+            calories = float(self.food_entry.get())
+            if calories <= 0:
+                raise ValueError
+            self.food_calories.set("{:.2f}".format(float(self.food_calories.get() or 0) + calories))
         except ValueError:
-            messagebox.showerror("Error", "Please enter a valid number of calories for the food item.")
+            messagebox.showerror("Error", "Please enter a valid number for calories.")
 
-    def clear_food(self):
-        self.food_listbox.delete(0, "end")
-        
+    def update_food_calories(self):
+        if len(self.food_calories) > 0:
+            total_calories = sum(self.food_calories)
+            self.food_calories_label.config(text=f"{total_calories:.1f} calories")
+        else:
+            self.food_calories_label.config(text="")
 
+    def clear_food_list(self):
+        self.food_entry.delete(0, tk.END)
+        self.food_calories.set(0)
+        self.food_data.clear()
+           
 
 
 root = tk.Tk()
