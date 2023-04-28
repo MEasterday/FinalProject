@@ -1,0 +1,140 @@
+import tkinter as tk
+from tkinter import ttk
+
+class HealthyHabitsTracker:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Healthy Habits Tracker")
+
+       # Initialize instance variables
+        self.master = master
+        self.water_amount = tk.StringVar(value="0")
+        self.sleep_hours = tk.StringVar(value="0")
+        self.activity_minutes = tk.StringVar(value="0")
+        self.food_calories = tk.StringVar(value="0")
+        self.food_item = tk.StringVar(value="0")
+
+        # Create the notebook widget
+        self.notebook = ttk.Notebook(master)
+        self.notebook.pack(fill='both', expand=True)
+        
+        # Create tabs for each habit
+        self.tabs = ttk.Notebook(self.master)
+        self.water_tab = ttk.Frame(self.tabs)
+        self.sleep_tab = ttk.Frame(self.tabs)
+        self.activity_tab = ttk.Frame(self.tabs)
+        self.food_tab = ttk.Frame(self.tabs)
+        
+        self.tabs.add(self.water_tab, text="Water Intake")
+        self.tabs.add(self.sleep_tab, text="Sleep")
+        self.tabs.add(self.activity_tab, text="Physical Activity")
+        self.tabs.add(self.food_tab, text="Food")
+        
+        # Add widgets to each tab
+        self.create_water_tab()
+        self.create_sleep_tab()
+        self.create_activity_tab()
+        self.create_food_tab()
+        
+        self.tabs.pack(expand=1, fill="both")
+        
+    def create_water_tab(self):
+        # Create widgets for the water tab
+        ttk.Label(self.water_tab, text="Water Intake Tracker", font=("TkDefaultFont", 16)).grid(column=0, row=0, padx=10, pady=10)
+        ttk.Label(self.water_tab, text="Enter amount (in ounces):").grid(column=0, row=1, padx=10, pady=10)
+        self.water_entry = ttk.Entry(self.water_tab, textvariable=self.water_amount)
+        self.water_entry.grid(column=1, row=1, padx=10, pady=10)
+        ttk.Button(self.water_tab, text="Add", command=self.add_water).grid(column=2, row=1, padx=10, pady=10)
+    
+    def add_water(self):
+        try:
+            amount = float(self.water_entry.get())
+            self.water_amount.set(str(amount))
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid number for water intake.")
+
+
+            
+    def create_sleep_tab(self):
+       # Create widgets for the sleep tab
+        ttk.Label(self.sleep_tab, text="Sleep Tracker", font=("TkDefaultFont", 16)).pack(side="top", padx=10, pady=10)
+        ttk.Label(self.sleep_tab, text="Enter hours of sleep:").pack(side="top", padx=10, pady=10)
+        self.sleep_entry = ttk.Entry(self.sleep_tab, textvariable=self.sleep_hours)
+        self.sleep_entry.pack(side="top", padx=10, pady=10)
+        ttk.Button(self.sleep_tab, text="Add", command=self.add_sleep).pack(side="top", padx=10, pady=10)
+    
+    def add_sleep(self):
+        try:
+            hours = float(self.sleep_entry.get())
+            self.sleep_hours.set(str(hours))
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid number for sleep hours.") 
+        
+    
+        
+    def create_activity_tab(self):
+         # Create widgets for the activity tab
+        ttk.Label(self.activity_tab, text="Physical Activity Tracker", font=("TkDefaultFont", 16)).grid(column=0, row=0, padx=10, pady=10)
+        ttk.Label(self.activity_tab, text="Enter minutes of activity:").grid(column=0, row=1, padx=10, pady=10)
+        self.activity_entry = ttk.Entry(self.activity_tab, textvariable=self.activity_minutes)
+        self.activity_entry.grid(column=1, row=1, padx=10, pady=10)
+        ttk.Button(self.activity_tab, text="Add", command=self.add_activity).grid(column=2, row=1, padx=10, pady=10)
+
+        # Create widgets for tracking activity minutes
+        label = ttk.Label(self.activity_tab, text="Enter the number of minutes of activity you did today:")
+        label.grid(column=0, row=2, padx=10, pady=10)
+
+        entry = ttk.Entry(self.activity_tab, textvariable=self.activity_minutes)
+        entry.grid(column=1, row=2, padx=10, pady=10)
+
+        button = ttk.Button(self.activity_tab, text="Add", command=self.add_activity)
+        button.grid(column=2, row=2, padx=10, pady=10)
+
+    def add_activity(self):
+        try:
+            activity = self.activity_entry.get()
+            self.activity_listbox.insert("end", activity)
+            self.activity_entry.delete(0, "end")
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid activity.")
+
+
+        
+    def create_food_tab(self):
+       # Create widgets for the food tab
+        ttk.Label(self.food_tab, text="Food Tracker", font=("TkDefaultFont", 16)).grid(column=0, row=0, padx=10, pady=10)
+        ttk.Label(self.food_tab, text="Enter a food item:").grid(column=0, row=1, padx=10, pady=10)
+        self.food_entry = ttk.Entry(self.food_tab, textvariable=self.food_item)
+        self.food_entry.grid(column=1, row=1, padx=10, pady=10)
+        ttk.Button(self.food_tab, text="Add", command=self.add_food).grid(column=2, row=1, padx=10, pady=10)
+    
+        # Create widgets for tracking food items
+        label = ttk.Label(self.food_tab, text="List of food items consumed today:")
+        label.grid(column=0, row=2, padx=10, pady=10)
+
+        self.food_listbox = tk.Listbox(self.food_tab)
+        self.food_listbox.grid(column=0, row=3, columnspan=3, padx=10, pady=10)
+
+        button = ttk.Button(self.food_tab, text="Clear", command=self.clear_food)
+        button.grid(column=2, row=4, padx=10, pady=10)
+
+    def add_food(self):
+        try:
+            item = self.food_entry.get()
+            calories = self.food_calories.get()
+
+            self.food_listbox.insert("end", f"{item} - {calories} calories")
+            self.food_entry.delete(0, "end")
+            self.food_calories.set("0")
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid number of calories for the food item.")
+
+    def clear_food(self):
+        self.food_listbox.delete(0, "end")
+        
+
+
+
+root = tk.Tk()
+app = HealthyHabitsTracker(root)
+root.mainloop()
