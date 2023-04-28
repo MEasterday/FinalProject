@@ -80,15 +80,6 @@ class HealthyHabitsTracker:
         self.activity_entry.grid(column=1, row=1, padx=10, pady=10)
         ttk.Button(self.activity_tab, text="Add", command=self.add_activity).grid(column=2, row=1, padx=10, pady=10)
 
-        # Create widgets for tracking activity minutes
-        label = ttk.Label(self.activity_tab, text="Enter the number of minutes of activity you did today:")
-        label.grid(column=0, row=2, padx=10, pady=10)
-
-        entry = ttk.Entry(self.activity_tab, textvariable=self.activity_minutes)
-        entry.grid(column=1, row=2, padx=10, pady=10)
-
-        button = ttk.Button(self.activity_tab, text="Add", command=self.add_activity)
-        button.grid(column=2, row=2, padx=10, pady=10)
 
     def add_activity(self):
         try:
