@@ -3,7 +3,6 @@ from tkinter import ttk
 from tkinter import messagebox
 
 
-
 class HealthyHabitsTracker:
     def __init__(self, master):
         self.master = master
@@ -100,6 +99,7 @@ class HealthyHabitsTracker:
         ttk.Label(self.sleep_tab, text="Enter hours slept today:").pack(side="top", padx=10, pady=10)
         self.sleep_entry = ttk.Entry(self.sleep_tab)
         self.sleep_entry.pack(side="top", padx=10, pady=10)
+        self.sleep_entry['validatecommand'] = (self.sleep_entry.register(self.validate_sleep_hours), '%P')
         ttk.Button(self.sleep_tab, text="Add", command=self.add_sleep).pack(side="top", padx=10, pady=10)
         ttk.Label(self.sleep_tab, text="Hours slept this week:").pack(side="top", padx=10, pady=10)
         self.sleep_listbox = tk.Listbox(self.sleep_tab, height=5)
@@ -109,16 +109,24 @@ class HealthyHabitsTracker:
         self.sleep_average_label.pack(side="top", padx=10, pady=10)
         ttk.Button(self.sleep_tab, text="Clear", command=self.clear_sleep_list).pack(side="top", padx=10, pady=10)
 
+    def validate_sleep_hours(self, input):
+        if input.isdigit() and int(input) <= 24:
+            return True
+        else:
+            return False    
+
     def add_sleep(self):
         try:
-            hours = float(self.sleep_entry.get())
+            hours = int(self.sleep_entry.get())
+            if hours > 24:
+                raise ValueError("Sleep hours cannot be greater than 24.")
             self.sleep_list.append(hours)
             self.sleep_listbox.delete(0, tk.END)
             for h in self.sleep_list:
                 self.sleep_listbox.insert(tk.END, str(h))
             self.update_sleep_average()
-        except ValueError:
-            messagebox.showerror("Error", "Please enter a valid number for sleep hours.")
+        except ValueError as e:
+            messagebox.showerror("Error", str(e))
 
     def clear_sleep_list(self):
         self.sleep_list = []
@@ -133,7 +141,6 @@ class HealthyHabitsTracker:
             self.sleep_average_label.config(text="")
 
             
- 
         
     def create_activity_tab(self):
         # Create widgets for the activity tab
@@ -217,3 +224,5 @@ class HealthyHabitsTracker:
 root = tk.Tk()
 app = HealthyHabitsTracker(root)
 root.mainloop()
+
+
